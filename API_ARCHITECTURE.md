@@ -29,7 +29,7 @@ body={CourseAttribute}
 ?id={course attribute id}
 ?name={course attribute name}
 
-**DELETE** `course/attr/{courseAttributeId}`: Delete a course attribute
+**DELETE** `course/{courseId}/attr/{courseAttributeName}`: Delete a course attribute
 
 ## Assignments
 **POST** `/assignment`: Create an assignment
@@ -41,8 +41,10 @@ body={Assignment}
 ?id={assignment_id}
 ?name={assignment_name}
 ?due_date={assignment_due_date}
-?code={class_code}
-?term={class_term}
+?code={course_code}
+?term={course_term}
+?level={course level}
+?academicYear={course academic year}
 
 **DELETE** `/assignment/{assignmentId}`: Delete an assignment
 
@@ -53,10 +55,7 @@ body={AssignmentAttribute}
 **GET** `/assignment/{assignmentId}/attr`: Get attributes for an 
 assignment
 
-?id={assignment_attribute_id}
-?name={assignment_attribute_name}
-
-**DELETE** `/assignment/attr/{assignmentAttributeId}`: Delete an assignment attribute
+**DELETE** `/assignment/{assignmentId}attr/{assignmentAttributeName}`: Delete an assignment attribute
 
 ## Engagement
 
@@ -105,7 +104,7 @@ body={Comment}
 
 **GET** `/user/engagement/{source}/{id}/vote`: Get the user's vote on a source item
 
-# Test Runner Endpoints
+# Test Runner Endpoints (To Be Updated)
 
 ## Test Suite
 **POST** `/suite`: Create a test suite for an assignment
