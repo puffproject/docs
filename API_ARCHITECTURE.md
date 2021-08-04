@@ -1,6 +1,6 @@
 
 # Endpoints
-This document is for outlining ideas about the api structure for unity-test.
+This document is for outlining ideas about the api structure for unity-test. Swagger documentation to follow, hopefully with OpenAPI 3.0.
 
 # Course-Management Endpoints
 Course management microservice endpoints
@@ -8,7 +8,7 @@ Course management microservice endpoints
 ## Course
 **POST** `/course`: Create or update a course
 
-body={Class}
+body={Course}
 
 **GET** `/course`: Get courses
 
@@ -24,10 +24,7 @@ body={Class}
 
 body={CourseAttribute}
 
-**GET** `course/{courseId}/attr`: Get attriibute(s) for a course
-
-?id={course attribute id}
-?name={course attribute name}
+**GET** `course/{courseId}/attr`: Get attributes for a course
 
 **DELETE** `course/{courseId}/attr/{courseAttributeName}`: Delete a course attribute
 
@@ -40,11 +37,10 @@ body={Assignment}
 
 ?id={assignment_id}
 ?name={assignment_name}
-?due_date={assignment_due_date}
-?code={course_code}
-?term={course_term}
-?level={course level}
-?academicYear={course academic year}
+?course.code={course_code}
+?course.term={course_term}
+?course.level={course level}
+?course.academicYear={course academic year}
 
 **DELETE** `/assignment/{assignmentId}`: Delete an assignment
 
@@ -52,59 +48,71 @@ body={Assignment}
 
 body={AssignmentAttribute}
 
-**GET** `/assignment/{assignmentId}/attr`: Get attributes for an 
-assignment
+**GET** `/assignment/{assignmentId}/attr`: Get attributes for an assignment
 
 **DELETE** `/assignment/{assignmentId}attr/{assignmentAttributeName}`: Delete an assignment attribute
 
 ## Engagement
 
 ### Vote
-**POST** `/engagement/{source}/{id}/vote`: Vote on a source item
+**POST** `/engagement/{sourceName}/{itemId}/vote`: Vote on a source item
 
-body={Vote}
-
-**DELETE** `/engagement/{source}/{id}/vote`: Remove a vote for a source item
+?action={upvote | downvote | novote}
 
 ### Comment
-**POST** `/engagement/{source}/{id}/comment`: Comment on a source item
+**POST** `/engagement/{sourceName}/{itemId}/comment`: Comment on a source item
 
 body={Comment}
 
-**GET** `/engagement/{source}/{id}/comment`: Get comments on a source item
+**GET** `/engagement/{sourceName}/{itemId}/comment`: Get comments on a source item
 
 ?id={commentId}
-?author={authorId}
+?author={authorUsername}
 
-**PUT** `/engagement/{source}/{id}/comment`: Update a comment on a source item (Optional)
+**PUT** `/engagement/{sourceName}/{itemId}/comment`: Update a comment on a source item
 
 body={Comment}
 
-**DELETE** `/engagement/{source}/{id}/comment/{commentId}`: Delete a comment on a source item (Restricted)
-
-?id={comment_id}
+**DELETE** `/engagement/{sourceName}/{itemId}/comment/{commentId}`: Delete a comment on a source item (Restricted to owner of comment or admin)
 
 ### Stats
-**GET** `/engagement/{source}/{id}/stats`: Get the statistics of a source item
+**GET** `/engagement/{sourceName}/stats`: Get the statistics of (a) source item(s)
+
+?ids={itemIds}[]
 
 ## User
-**GET** `/user/assignments`: Get the user's assignments
+**GET** `/user/assignments`: Get the user's assignments (References user enrollments)
 
 ?id={assignmentId}
 ?name={assignmentName}
 ?dueDate={assignmentDueDate}
-?code={classCode}
-?term={classTerm}
-?academicYear={academicYear}
+?class.code={classCode}
+?class.term={classTerm}
+?class.academicYear={classAcademicYear}
 ?pinned={true | false}
 
-**POST** `/user/assignment/{assignmentId}/add`: Add an assignment to the user's workload
+**POST** `/user/assignment/{assignmentId}/pinned`: Update the preferences of the user's assigned assignment
 
-**PUT** `/user/assignment/{assignmentId}/add`: Update the preferences of the user's assigned assignment
+?pin={true | false} (Set the pinned status of the assignment for the user)
 
-**GET** `/user/engagement/{source}/{id}/vote`: Get the user's vote on a source item
+**GET** `/user/engagement/{sourceName}/{itemId}/vote`: Get the user's vote on a source item (Check if a user has already voted on something)
 
-# Test Runner Endpoints (To Be Updated)
+# Test Runner Endpoints
+
+Test runner microservice endpoints
+
+## Submissions
+Handle file submissions
+
+**GET** `/download`: Download source code upload. Allows a user to download a copy of their uploaded source code. (Secured for author or admin)
+
+?submissionId={submissionId}
+
+**POST** `/upload`: Upload source code files. Allow user to upload source code to run test cases against.
+(In form data)
+
+?assignmentId={assignmentId}
+?files={file}[]
 
 ## Test Suite
 **POST** `/suite`: Create a test suite for an assignment
@@ -113,15 +121,26 @@ body={Suite}
 
 **GET** `/suite`: Get test suites
 
-?assignmentId={assignment_id}
-?name={suite name}
+?id={suiteId}
+?assignmentId={assignmentId}
+?name={suiteName}
 ?lang={programming language}
 
-**DELETE** `/suite/{suiteId}`: Delete a test suite (Restricted)
+**DELETE** `/suite/{suiteId}`: Delete a test suite (Restricted to creator or admin)
 
-**POST** `/suite/run`: Run all test cases in test suite
+**POST** `/suite/{suiteId}/run`: Run test cases in test suite
 
-?id={test suite id}
+?ids={test case ids to run in the suite}
+?limit={number of cases to run if ids not specified}
+?submissionId={id of source code submission to use, otherwise use latest}
+
+**POST** `/suite/{suiteId}/setFile`: Upload test file for a test suite
+
+**GET** `/suite/{suiteId}/getFile`: Get the contents of a test file for a test suite
+
+**POST** `/suite/{suiteId}/vote`: Vote on a test suite. (System-level restricted)
+
+?action={upvote | downvote | novote}
 
 ## Test Case
 **POST** `/case`: Create a test case for a test suite
@@ -130,12 +149,14 @@ body={Case}
 
 **GET** `/case`: Retrieve a pageable view of test cases
 
+?id={caseId}
+?name={functionName}
 ?suiteId={test suite id}
 ?lang={Programming language}
 
-**PUT** `/case`: Update a test case (if you are the author or ADMIN)
+**PATCH** `/case`: Update a test case. (Restricted to author or ADMIN)
 
-body={Case}
+body={Updateable fields in Case}
 
 Updateable fields
 * code
@@ -143,20 +164,13 @@ Updateable fields
 
 **DELETE** `/case/{caseId}`: Delete a test case (if you are the author or ADMIN)
 
-**POST**: `/case/compile`: Compile test case code in its language
+**POST** `/case/{caseId}/vote`: Vote on a test case. (System-level restricted)
 
-body={Case}
-
-**POST**: `/case/run`: Run test case(s) on a source code submission
-
-?ids={List of case ids to run}
-?submissionId={Id of submission}e]
-
-## Submission
-
-**POST** `/upload`: Upload source files as part of a submission 
+?action={upvote | downvote | novote}
 
 ## User
-**GET** `/user/cases`: Get test cases written by a user
+**GET** `/user/cases`: Get test cases written by the user
 
-**GET** `/user/uploads`: Get source code submissions uploaded by the user
+**GET** `/user/recentUploads`: Get source code submissions uploaded by the user
+
+**GET** `/user/suites`: Get test suites created by the user
