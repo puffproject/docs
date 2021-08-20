@@ -46,7 +46,22 @@ See each repo for instructions on setting up and running the microservice locall
 ### Setup Keycloak
 > Keycloak is an open source Identity and Access Management solution aimed at modern applications and services. It makes it easy to secure applications and services with little to no code.
 
-_Puff_ uses keycloak as a user management and authentication solution. More information about Keycloak can be found on their [offical docs page](https://www.keycloak.org/docs/latest/index.html). In order to authenticate and send requests locally you'll need to setup your own keycloak server locally:
+_Puff_ uses keycloak as a user management and authentication solution. More information about Keycloak can be found on their [offical docs page](https://www.keycloak.org/docs/latest/index.html). In order to authenticate and send requests locally you'll need to setup your own keycloak server:
+
+**As a Docker container**:
+
+```
+docker run -p 8180:8080 \
+ --name keycloak \
+ -e KEYCLOAK_USER=admin \
+ -e KEYCLOAK_PASSWORD=pass \
+ -e KEYCLOAK_IMPORT=/tmp/realm.json \
+ -v "$(pwd)/keycloak/realm.json:/tmp/realm.json:ro" \
+ jboss/keycloak
+```
+This will set your admin credentials to be `admin` and `pass` and import the Puff realm.
+
+**Locally with the standalone server**:
 
 * Download and install the standalone server from https://www.keycloak.org/downloads.html.
 * Navigate to your installed keycloak directory and run the following command:
@@ -69,7 +84,7 @@ Windows
 * Create at least two test user accounts. They will automatically be added to the `Users` group. You'll want to add at least one use to the `Administrators` group to test. You will need to reset their passwords once created.
 * You can optionally add the `sys` role to a user to test system-secured endpoints.
 * View the account page of a test user at http://localhost:8180/auth/realms/puff/account/.
-* If you have already generated a secret for both `user-auth` and `puff-service-acc` skip this step. Otherwise, navigate to the admin portal from http://localhost:8180/auth/admin and log in. Once logged in, navigate to `Clients > user-auth > Credentials` and click `Regenerate Secret`. Repeat this for `Clients > puff-service-acc`.
+* If you have already generated a secret for both `user-auth` and `puff-service-acc` skip this step. Otherwise, navigate to the admin portal from http://localhost:8180/auth/admin and log in. Once logged in, navigate to `Clients > user-auth > Credentials` and click `Regenerate Secret`. Repeat this for `Clients > puff-service-acc`, replacing the new secrets in your `application-local.yml` files as needed.
 * Generate an authentication token by making the following curl call **replacing TEST_USER_USERNAME**, **TEST_USER_PASSWORD** and **USER_AUTH_CLIENT_SECRET** with the credentials for the test accounts you created and the client-secret for user-auth.
 ```shell
 curl -X POST 'http://localhost:8180/auth/realms/puff/protocol/openid-connect/token' \
