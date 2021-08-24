@@ -78,7 +78,7 @@ Windows
 * Setup your admin account by navigating to http://localhost:8180.
 * Navigate to the admin portal from http://localhost:8180/auth/admin
 * When you log in you should be on the `Master` realm. Hover over the dropdown arrow and then click `Add realm`.
-* Import the realm settings, configuration and clients using the [puff-keycloak-config.json](keycloak/puff-keycloak-config.json) file located in the keycloak folder.
+* Import the realm settings, configuration and clients using the [realm.json](keycloak/realm.json) file located in the keycloak folder.
 
 #### Setup test accounts
 * Create at least two test user accounts. They will automatically be added to the `Users` group. You'll want to add at least one use to the `Administrators` group to test. You will need to reset their passwords once created.
