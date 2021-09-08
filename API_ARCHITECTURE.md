@@ -83,19 +83,22 @@ body={Comment}
 ## User
 **GET** `/user/assignments`: Get the user's assignments (References user enrollments)
 
-?id={assignmentId}
-?name={assignmentName}
-?dueDate={assignmentDueDate}
-?class.code={classCode}
-?class.term={classTerm}
-?class.academicYear={classAcademicYear}
+?assignment.id={assignmentId}
+?assignment.name={assignmentName}
+?assignment.course.code={courseCode}
+?assignment.course.term={courseTerm}
+?assignment.course.academicYear={classAcademicYear}
 ?pinned={true | false}
 
-**POST** `/user/assignment/{assignmentId}/pinned`: Update the preferences of the user's assigned assignment
+Should be able to sort to get the pinned assignments at the top of the results.
+
+**POST** `/user/assignment/{assignmentId}/enroll`: Enrolls the user in an assignment
 
 ?pin={true | false} (Set the pinned status of the assignment for the user)
 
-**GET** `/user/engagement/{sourceName}/{itemId}/vote`: Get the user's vote on a source item (Check if a user has already voted on something)
+**DELETE** `/user/assignment/{assignmentId}/unenroll`: Removes a user's enrollment in an assignment
+
+**GET** `/user/engagement/{sourceType}/{sourceItemId}/vote`: Get the user's vote on a source item (Check if a user has already voted on something) (may not be necessary, to be seen) 
 
 # Test Runner Endpoints
 
