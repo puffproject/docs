@@ -49,7 +49,7 @@ See each repo for instructions on setting up and running the microservice locall
 _Puff_ uses keycloak as a user management and authentication solution. More information about Keycloak can be found on their [offical docs page](https://www.keycloak.org/docs/latest/index.html). In order to authenticate and send requests locally you'll need to setup your own keycloak server:
 
 **As a Docker container**:
-
+* Download the realm settings, configuration and clients using the [realm.json](keycloak/realm.json) file located in the keycloak folder.
 ```
 docker run -p 8180:8080 \
  --name keycloak \
@@ -60,6 +60,7 @@ docker run -p 8180:8080 \
  jboss/keycloak
 ```
 This will set your admin credentials to be `admin` and `pass` and import the Puff realm.
+* If you run into problems, make sure you have the proper path to the `realm.json` file when running the Docker command.
 
 **Locally with the standalone server**:
 
